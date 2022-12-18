@@ -1,86 +1,54 @@
-const express = require('express');
-const fs = require('fs');
+const express = require("express");
+const app = new express();
+const fs = require("fs");
+app.use(express.json());
+const data = require("./hospitals.json");
 
-const app = express();
-
-// Set up a route to retrieve a list of all hospitals
-app.get('/hospitals', (req, res) => {
-  // Read the JSON file and parse the data
-  const data = fs.readFileSync('./hospitals.json', 'utf8');
-  const hospitals = JSON.parse(data);
-
-  // Send the list of hospitals as the response
-  res.send(hospitals);
+//Get Hospital Datas
+app.get("/hospitals", (req, res) => {
+  res.send(data);
 });
-
-// Set up a route to retrieve a specific hospital by its name
-app.get('/hospitals/:name', (req, res) => {
-  // Read the JSON file and parse the data
-  const data = fs.readFileSync('./hospitals.json', 'utf8');
-  const hospitals = JSON.parse(data);
-
-  // Find the hospital with the matching name
-  const hospital = hospitals.find(h => h.name === req.params.name);
-
-  // Send the hospital as the response
-  res.send(hospital);
-});
-
-// Set up a route to add a new hospital
-app.post('/hospitals', (req, res) => {
-  // Read the JSON file and parse the data
-  const data = fs.readFileSync('./hospitals.json', 'utf8');
-  const hospitals = JSON.parse(data);
-
-  // Add the new hospital to the list
-  hospitals.push(req.body);
-
-  // Write the updated list of hospitals back to the JSON file
-  fs.writeFileSync('./hospitals.json', JSON.stringify(hospitals));
-
-  // Send a success response
-  res.send({ message: 'Hospital added successfully' });
-});
-
-// Set up a route to update the patient count for a hospital
-app.put('/hospitals/:name/patient_count', (req, res) => {
-  // Read the JSON file and parse the data
-  const data = fs.readFileSync('./hospitals.json', 'utf8');
-  const hospitals = JSON.parse(data);
-
-  // Find the hospital with the matching name
-  const hospital = hospitals.find(h => h.name === req.params.name);
-
-  // Update the patient count for the hospital
-  hospital.patient_count = req.body.patient_count;
-
-  // Write the updated list of hospitals back to the JSON file
-  fs.writeFileSync('./hospitals.json', JSON.stringify(hospitals));
-
-  // Send a success response
-  res.send({ message: 'Patient count updated successfully' });
-});
-// Set up a route to delete a hospital
-app.delete('/hospitals/:name', (req, res) => {
-    // Read the JSON file and parse the data
-    const data = fs.readFileSync('./hospitals.json', 'utf8');
-    const hospitals = JSON.parse(data);
-  
-    // Find the index of the hospital with the matching name
-    const hospitalIndex = hospitals.findIndex(h => h.name === req.params.name);
-  
-    // Remove the hospital from the list
-    hospitals.splice(hospitalIndex, 1);
-  
-    // Write the updated list of hospitals back to the JSON file
-    fs.writeFileSync('./hospitals.json', JSON.stringify(hospitals));
-  
-    // Send a success response
-    res.send({ message: 'Hospital deleted successfully' });
+//POST Hospial Data
+app.post("/hospitals", (req, res) => {
+  data.push(req.body);
+  fs.writeFile("hospitals.json", JSON.stringify(data), (err, resp) => {
+    if (err) {
+      res.send("Data can not return");
+    } else {
+      res.send("Data Added Successfully");
+    }
   });
-  
-  // Start the server
-  app.listen(3000, () => {
-    console.log('Server listening on port 3000');
+});
+
+//PUT Request
+app.put("/hospital/:name", (req, res) => {
+  let name = req.params.name;
+  data.forEach((item) => {
+    if (item.HospitalName == name) {
+      item.PatientCount = req.body.PatientCount;
+      item.HospitalLocation = req.body.HospitalLocation;
+    }
   });
-  
+  fs.writeFile("hospitals.json", JSON.stringify(data), (err, resp) => {
+    if (err) {
+      res.send("Data could not be updated");
+    } else {
+      res.send("Data updated");
+    }
+  });
+});
+
+//DELTE request
+app.delete("/hospital/:name", (req, res) => {
+  let name = req.params.name;
+  let value = data.filter((item) => item.HospitalName !== name);
+  fs.writeFile("hospitals.json", JSON.stringify(value), (err, resp) => {
+    if (err) {
+      res.send("Data could not be deleted");
+    } else {
+      res.send("Data deleted");
+    }
+  });
+});
+app.listen(3000);
+console.log("Server Listening to port 3000");
