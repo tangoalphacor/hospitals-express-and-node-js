@@ -21,7 +21,7 @@ app.post("/hospitals", (req, res) => {
 });
 
 //PUT Request
-app.put("/hospital/:name", (req, res) => {
+app.put("/hospitals/:name", (req, res) => {
   let name = req.params.name;
   data.forEach((item) => {
     if (item.HospitalName == name) {
@@ -39,7 +39,7 @@ app.put("/hospital/:name", (req, res) => {
 });
 
 //DELTE request
-app.delete("/hospital/:name", (req, res) => {
+app.delete("/hospitals/:name", (req, res) => {
   let name = req.params.name;
   let value = data.filter((item) => item.HospitalName !== name);
   fs.writeFile("hospitals.json", JSON.stringify(value), (err, resp) => {
